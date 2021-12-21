@@ -104,6 +104,8 @@ class sssd (
       if !($::facts['os']['release']['major'] in ['30', '31', '32', '33']) {
         warning("osname Fedora's os.release.major is <${::facts['os']['release']['major']}> and must be 29, 30, 31, 32 or 33.")
       }
+    } elsif ($::facts['os']['name'] in ['Rocky', 'AlmaLinux']) {
+      warning("osname \"${::facts['os']['name']}\" os.release.major is <${::facts['os']['release']['major']}>.")
     } else {
       warning("osname, \"${::facts['os']['name']}\", is recongnized as part of the RedHat family but is unsupported")
     }
@@ -200,7 +202,7 @@ class sssd (
   case $::osfamily {
     'RedHat': {
       if ($::facts['os']['name'] == 'Fedora' and versioncmp($::facts['os']['release']['major'], '28') >= 0) or
-      ( $::facts['os']['family'] == 'RedHat' and versioncmp($::facts['os']['release']['major'], '8') >= 0) {
+      ( versioncmp($::facts['os']['release']['major'], '8') >= 0) {
         if $ensure == 'present' {
           $authselect_options = join(
             concat(
