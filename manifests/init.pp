@@ -72,6 +72,9 @@ class sssd (
   Boolean $manage_oddjobd = false,
   Variant[Boolean, Enum['running', 'stopped']] $service_ensure = 'running',
   Array $service_dependencies = [],
+  Array $authselect_enable_mkhomedir_feature = [
+    'with-mkhomedir'
+  ],
   Array $enable_mkhomedir_flags = [
     '--enablesssd',
     '--enablesssdauth',
@@ -204,16 +207,10 @@ class sssd (
       if ($::facts['os']['name'] == 'Fedora' and versioncmp($::facts['os']['release']['major'], '28') >= 0) or
       ( versioncmp($::facts['os']['release']['major'], '8') >= 0) {
         if $ensure == 'present' {
-          $authselect_options = join(
-            concat(
-              [$authselect_profile],
-              $mkhomedir ? {
-                true  => $enable_mkhomedir_flags,
-                false => $disable_mkhomedir_flags,
-              }
-            ),
-            ' ',
-          )
+          $authselect_options = $mkhomedir ? {
+                true  => join([$authselect_profile, $authselect_enable_mkhomedir_feature], ' '),
+                false => $authselect_profile,
+          }
         } else {
           $authselect_options = join(concat([$authselect_profile],$ensure_absent_flags), ' ')
         }
